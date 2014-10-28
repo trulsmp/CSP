@@ -83,7 +83,7 @@ class CSP:
         self.inference(assignment, self.get_all_arcs())
 
         # Call backtrack with the partial assignment 'assignment'
-        return self.backtrack(assignment)
+        return self.domains
 
     def backtrack(self, assignment):
         """The function 'Backtrack' from the pseudocode in the
@@ -127,20 +127,15 @@ class CSP:
         the lists of legal values for each undecided variable. 'queue'
         is the initial queue of arcs that should be visited.
         """
-        print queue
-        if queue == None:
-            queue = self.get_all_arcs()
-        while queue:
-            (Xi, Xj) = queue.pop()
-            if self.revise(csp, Xi, Xj):
-                print('true')
-                for Xk in self.get_all_neighboring_arcs(Xi):
-                    print Xk
-                    queue.append((Xk, Xi))
+        all_arcs = queue
+        while all_arcs:
+            (i, j) = all_arcs.pop()
+            if self.revise(assignment, i, j):
+                if len(self.domains.get(i)) == 0:
+                    return False
+                for k in self.get_all_neighboring_arcs(i):
+                    all_arcs.append(k)
 
-
-
-        pass
 
     def revise(self, assignment, i, j):
         """The function 'Revise' from the pseudocode in the textbook.
@@ -150,21 +145,20 @@ class CSP:
         found in variable i's domain that doesn't satisfy the constraint
         between i and j, the value should be deleted from i's list of
         legal values in 'assignment'.
-
-        evised = false
-        for each x in Di do
-            if no value y in Dj allows (x,y) to satisfy the constraint between Xi and Xj then delete x from Di
-                revised = true
-        return revised
-
-
         """
-        revised = True
-        print self.domains[i]
-        for x in self.domains[i]:
 
-            revised = True
-
+        revised = False
+        for x in self.domains.get(i):
+            found = False
+            for y in self.domains.get(j):
+                if (x,y) in self.constraints.get(i).get(j):
+                    found = True
+                    break
+            if found is False:
+                for key, d in enumerate(self.domains.get(i)):
+                    if x == d:
+                        del self.domains.get(i)[key]
+                revised = True
         return revised
 
 
@@ -213,6 +207,7 @@ def create_sudoku_csp(filename):
 
     return csp
 
+
 def print_sudoku_solution(solution):
     """Convert the representation of a Sudoku solution as returned from
     the method CSP.backtracking_search(), into a human readable
@@ -227,6 +222,6 @@ def print_sudoku_solution(solution):
         if row == 2 or row == 5:
             print '------+-------+------'
 
-csp = create_sudoku_csp('sudokus/easy.txt')
+csp = create_sudoku_csp('sudokus/medium.txt')
 solution = csp.backtracking_search()
 print_sudoku_solution(solution)
