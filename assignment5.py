@@ -162,7 +162,7 @@ class CSP:
         revised = True
         print self.domains[i]
         for x in self.domains[i]:
-            
+
             revised = True
 
         return revised
