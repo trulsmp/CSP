@@ -17,6 +17,7 @@ class CSP:
         self.constraints = {}
 
         self.counter = 0
+        self.failures = 0
 
     def add_variable(self, name, domain):
         """Add a new variable to the CSP. 'name' is the variable name
@@ -26,6 +27,7 @@ class CSP:
         self.domains[name] = list(domain)
         self.constraints[name] = {}
         self.counter = 0
+        self.failures = 0
 
     def get_all_possible_pairs(self, a, b):
         """Get a list of all possible pairs (as tuples) of the values in
@@ -111,30 +113,12 @@ class CSP:
         should have a clean slate and not see any traces of the old
         assignments and inferences that took place in previous
         iterations of the loop.
+        """
 
-        """
-        """
-        function BACKTRACK(assignment,csp) returns a solution, or failure
-            #if assignment is complete:
-                #return assignment
-            #var = SELECT UNASSIGNED VARIABLE(csp)
-            for each value in ORDER-DOMAIN-VALUES(var,assignment,csp) do
-                if value is consistent with assignment:
-                    then add {var = value} to assignment
-                    inferences = INFERENCE(csp,var,value)
-                    if inferences != failure then
-                        add inferences to assignment
-                        result = BACKTRACK(assignment, csp)
-                        if result != failure then
-                            return result
-                remove {var = value} and inferences from assignment
-            return failure
-
-        """
         self.counter += 1
-        print self.counter
         if self.check_done(assignment):
-            print ("DONE")
+            print "Total runs of backtrack: ", self.counter
+            print "Total number of fails: ", self.failures
             return assignment
 
         var = self.select_unassigned_variable(assignment)
@@ -145,6 +129,7 @@ class CSP:
                 result = self.backtrack(temp_assignment)
                 if result:
                     return result
+        self.failures += 1
         return False
 
 
@@ -165,7 +150,7 @@ class CSP:
         highest_order = "2-2"
         for list in assignment:
             if len(assignment[list]) > 1:
-                if len(assignment[highest_order]) < len(assignment[list]):
+                if len(assignment[highest_order]) > len(assignment[list]):
                     highest_order = list
         return highest_order
 
