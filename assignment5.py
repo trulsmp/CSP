@@ -84,7 +84,7 @@ class CSP:
         self.inference(assignment, self.get_all_arcs())
 
         # Call backtrack with the partial assignment 'assignment'
-        return self.backtrack(self.domains);
+        return self.backtrack(assignment);
 
     def backtrack(self, assignment):
         """The function 'Backtrack' from the pseudocode in the
@@ -129,19 +129,23 @@ class CSP:
             return failure
 
         """
-        done = True
-        for list in assignment:
-            if len(assignment[list]) > 1:
-                done = False
-        if done:
+        if self.check_done(assignment):
             print ("DONE")
             return assignment
 
         variable = self.select_unassigned_variable(assignment)
-        print(variable)
-        print(assignment[variable])
+
+
 
         return assignment
+
+
+    def check_done(self,assignment):
+        done = True
+        for list in assignment:
+            if len(assignment[list]) > 1:
+                done = False
+        return done
 
 
     def select_unassigned_variable(self, assignment):
@@ -168,11 +172,11 @@ class CSP:
         while all_arcs:
             i, j = all_arcs.pop()
             if self.revise(assignment, i, j):
-                if len(self.domains.get(i)) == 0:
+                if len(assignment.get(i)) == 0:
                     return False
                 for k in self.get_all_neighboring_arcs(i):
                     all_arcs.append(k)
-        return True
+        return assignment
 
 
 
@@ -188,9 +192,9 @@ class CSP:
 
         revised = False
         # Iterates the values in i's domain, then iterates the y values and checks if there is a constraint for the tuple
-        for index, value in enumerate(self.domains.get(i)):
+        for index, value in enumerate(assignment.get(i)):
             found_valid_value = False
-            for y in self.domains.get(j):
+            for y in assignment.get(j):
                 if (value, y) in self.constraints.get(i).get(j):
                     found_valid_value = True
                     break
@@ -198,7 +202,7 @@ class CSP:
             #if we found no valid value in j's domain that works with
             #the iterating i's domain value we delete the Domain value we are looking at
             if found_valid_value is False:
-                del self.domains.get(i)[index]
+                del assignment.get(i)[index]
                 revised = True
         return revised
 
@@ -263,6 +267,6 @@ def print_sudoku_solution(solution):
         if row == 2 or row == 5:
             print '------+-------+------'
 
-csp = create_sudoku_csp('sudokus/hard.txt')
+csp = create_sudoku_csp('sudokus/medium.txt')
 solution = csp.backtracking_search()
 print_sudoku_solution(solution)
