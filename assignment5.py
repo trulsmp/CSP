@@ -117,8 +117,12 @@ class CSP:
 
         self.counter += 1
         if self.check_done(assignment):
+            print "Numbers and statistics: "
+            print "-------------------------------"
             print "Total runs of backtrack: ", self.counter
             print "Total number of fails: ", self.failures
+            print "-------------------------------"
+            print ""
             return assignment
 
         var = self.select_unassigned_variable(assignment)
@@ -251,35 +255,18 @@ def print_sudoku_solution(solution):
     the method CSP.backtracking_search(), into a human readable
     representation.
     """
+    print "Solution: "
+    print "-------------------------------"
     for row in range(9):
         for col in range(9):
             print solution['%d-%d' % (row, col)][0],
             if col == 2 or col == 5:
                 print '|',
-        print
+        print 
         if row == 2 or row == 5:
             print '------+-------+------'
 
 
-def debug_print(assignment):
-    for i in range(9):
-        output = ''
-        for j in range(9):
-            values = assignment[str(i) + "-" + str(j)]
-            if len(values) == 1:
-                output += " " + values[0] + " "
-            else:
-                output += "   "
-
-            if j == 2 or j == 5:
-                output += "|"
-        print output
-        if i == 2 or i == 5:
-            print '---------+---------+---------'
-    print " "
-    print " "
-
-
 csp = create_sudoku_csp('sudokus/veryhard.txt')
 solution = csp.backtracking_search()
-debug_print(solution)
+print_sudoku_solution(solution)
