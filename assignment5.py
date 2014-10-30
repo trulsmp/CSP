@@ -84,7 +84,7 @@ class CSP:
         self.inference(assignment, self.get_all_arcs())
 
         # Call backtrack with the partial assignment 'assignment'
-        return self.domains
+        return self.backtrack(self.domains);
 
     def backtrack(self, assignment):
         """The function 'Backtrack' from the pseudocode in the
@@ -109,9 +109,40 @@ class CSP:
         should have a clean slate and not see any traces of the old
         assignments and inferences that took place in previous
         iterations of the loop.
+
         """
-        # TODO: IMPLEMENT THIS
+        """
+        function BACKTRACK(assignment,csp) returns a solution, or failure
+            if assignment is complete:
+                return assignment
+            var = SELECT UNASSIGNED VARIABLE(csp)
+            for each value in ORDER-DOMAIN-VALUES(var,assignment,csp) do
+                if value is consistent with assignment:
+                    then add {var = value} to assignment
+                    inferences = INFERENCE(csp,var,value)
+                    if inferences != failure then
+                        add inferences to assignment
+                        result = BACKTRACK(assignment, csp)
+                        if result != failure then
+                            return result
+                remove {var = value} and inferences from assignment
+            return failure
+
+        """
+        done = True
+        for list in assignment:
+            if len(assignment[list]) > 1:
+                done = False
+        if done:
+            print ("DONE")
+            return assignment
+
+        variable = self.select_unassigned_variable(assignment)
+        print(variable)
+        print(assignment[variable])
+
         return assignment
+
 
     def select_unassigned_variable(self, assignment):
         """The function 'Select-Unassigned-Variable' from the pseudocode
@@ -119,8 +150,13 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        # TODO: IMPLEMENT THIS
-        pass
+        highest_order = "2-2"
+        for list in assignment:
+            if len(assignment[list]) > 1:
+                if len(assignment[highest_order]) < len(assignment[list]):
+                    highest_order = list
+        return highest_order
+
 
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -136,6 +172,8 @@ class CSP:
                     return False
                 for k in self.get_all_neighboring_arcs(i):
                     all_arcs.append(k)
+        return True
+
 
 
     def revise(self, assignment, i, j):
@@ -225,6 +263,6 @@ def print_sudoku_solution(solution):
         if row == 2 or row == 5:
             print '------+-------+------'
 
-csp = create_sudoku_csp('sudokus/medium.txt')
+csp = create_sudoku_csp('sudokus/hard.txt')
 solution = csp.backtracking_search()
 print_sudoku_solution(solution)
