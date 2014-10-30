@@ -2,6 +2,7 @@
 
 import copy
 import itertools
+import pprint
 
 class CSP:
     def __init__(self):
@@ -129,7 +130,7 @@ class CSP:
         """
         all_arcs = queue
         while all_arcs:
-            (i, j) = all_arcs.pop()
+            i, j = all_arcs.pop()
             if self.revise(assignment, i, j):
                 if len(self.domains.get(i)) == 0:
                     return False
@@ -148,16 +149,18 @@ class CSP:
         """
 
         revised = False
-        for x in self.domains.get(i):
-            found = False
+        # Iterates the values in i's domain, then iterates the y values and checks if there is a constraint for the tuple
+        for index, value in enumerate(self.domains.get(i)):
+            found_valid_value = False
             for y in self.domains.get(j):
-                if (x,y) in self.constraints.get(i).get(j):
-                    found = True
+                if (value, y) in self.constraints.get(i).get(j):
+                    found_valid_value = True
                     break
-            if found is False:
-                for key, d in enumerate(self.domains.get(i)):
-                    if x == d:
-                        del self.domains.get(i)[key]
+
+            #if we found no valid value in j's domain that works with
+            #the iterating i's domain value we delete the Domain value we are looking at
+            if found_valid_value is False:
+                del self.domains.get(i)[index]
                 revised = True
         return revised
 
