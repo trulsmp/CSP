@@ -16,6 +16,8 @@ class CSP:
         # the variable pair (i, j)
         self.constraints = {}
 
+        self.counter = 0
+
     def add_variable(self, name, domain):
         """Add a new variable to the CSP. 'name' is the variable name
         and 'domain' is a list of the legal values for the variable.
@@ -23,6 +25,7 @@ class CSP:
         self.variables.append(name)
         self.domains[name] = list(domain)
         self.constraints[name] = {}
+        self.counter = 0
 
     def get_all_possible_pairs(self, a, b):
         """Get a list of all possible pairs (as tuples) of the values in
@@ -78,7 +81,6 @@ class CSP:
         # ensure that any changes made to 'assignment' does not have any
         # side effects elsewhere.
         assignment = copy.deepcopy(self.domains)
-
         # Run AC-3 on all constraints in the CSP, to weed out all of the
         # values that are not arc-consistent to begin with
         self.inference(assignment, self.get_all_arcs())
@@ -113,9 +115,9 @@ class CSP:
         """
         """
         function BACKTRACK(assignment,csp) returns a solution, or failure
-            if assignment is complete:
-                return assignment
-            var = SELECT UNASSIGNED VARIABLE(csp)
+            #if assignment is complete:
+                #return assignment
+            #var = SELECT UNASSIGNED VARIABLE(csp)
             for each value in ORDER-DOMAIN-VALUES(var,assignment,csp) do
                 if value is consistent with assignment:
                     then add {var = value} to assignment
@@ -129,15 +131,21 @@ class CSP:
             return failure
 
         """
+        self.counter += 1
+        print self.counter
         if self.check_done(assignment):
             print ("DONE")
             return assignment
 
-        variable = self.select_unassigned_variable(assignment)
-
-
-
-        return assignment
+        var = self.select_unassigned_variable(assignment)
+        for value in assignment[var]:
+            temp_assignment = copy.deepcopy(assignment)
+            temp_assignment[var] = value
+            if self.inference(temp_assignment,self.get_all_arcs()):
+                result = self.backtrack(temp_assignment)
+                if result:
+                    return result
+        return False
 
 
     def check_done(self,assignment):
@@ -170,13 +178,13 @@ class CSP:
         """
         all_arcs = queue
         while all_arcs:
-            i, j = all_arcs.pop()
+            i, j = all_arcs.pop(0)
             if self.revise(assignment, i, j):
                 if len(assignment.get(i)) == 0:
                     return False
                 for k in self.get_all_neighboring_arcs(i):
                     all_arcs.append(k)
-        return assignment
+        return True
 
 
 
@@ -267,6 +275,26 @@ def print_sudoku_solution(solution):
         if row == 2 or row == 5:
             print '------+-------+------'
 
-csp = create_sudoku_csp('sudokus/medium.txt')
+
+def debug_print(assignment):
+    for i in range(9):
+        output = ''
+        for j in range(9):
+            values = assignment[str(i) + "-" + str(j)]
+            if len(values) == 1:
+                output += " " + values[0] + " "
+            else:
+                output += "   "
+
+            if j == 2 or j == 5:
+                output += "|"
+        print output
+        if i == 2 or i == 5:
+            print '---------+---------+---------'
+    print " "
+    print " "
+
+
+csp = create_sudoku_csp('sudokus/veryhard.txt')
 solution = csp.backtracking_search()
-print_sudoku_solution(solution)
+debug_print(solution)
